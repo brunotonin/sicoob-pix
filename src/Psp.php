@@ -24,13 +24,17 @@ class Psp
         if (strpos(realpath($path), 'public')) {
             $path = "../";
         }
-        $dotenv = Dotenv::createImmutable($path);
-        $dotenv->load();
+        try {
+            $dotenv = Dotenv::createImmutable($path);
+            $dotenv->load();
+
+        } catch (\Throwable $th) {
+        }
         $this->scope = implode(' ', $scope);
         $this->urlToken = Endpoint::URL_AUTENTICACAO;
         $this->baseUrlPix = Endpoint::URL_PIX;
-        $this->certificadoPublico = [realpath($_ENV['SICOOBPIX_CAMINHO_CERT_PUBLICO']), $_ENV['SICOOBPIX_SENHA_CERT_PUBLICO']];
-        $this->certificadoPrivado = [realpath($_ENV['SICOOBPIX_CAMINHO_CERT_PRIVADO']), $_ENV['SICOOBPIX_SENHA_CERT_PRIVADO']];
+        $this->certificadoPublico = [realpath(getenv['SICOOBPIX_CAMINHO_CERT_PUBLICO']), getenv['SICOOBPIX_SENHA_CERT_PUBLICO']];
+        $this->certificadoPrivado = [realpath(getenv['SICOOBPIX_CAMINHO_CERT_PRIVADO']), getenv['SICOOBPIX_SENHA_CERT_PRIVADO']];
     }
 
 
@@ -44,8 +48,8 @@ class Psp
             $response = $client->request('POST', $this->urlToken, [
                 'form_params' => [
                     'grant_type' => 'client_credentials',
-                    'client_id' => $_ENV['SICOOBPIX_CLIENT_ID'],
-                    'client_secret' => $_ENV['SICOOBPIX_CLIENT_SECRET'],
+                    'client_id' => getenv['SICOOBPIX_CLIENT_ID'],
+                    'client_secret' => getenv['SICOOBPIX_CLIENT_SECRET'],
                     'scope' => $this->scope
                 ],
                 'cert' => $this->certificadoPublico,
